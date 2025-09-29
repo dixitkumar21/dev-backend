@@ -6,6 +6,9 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 
 const registerUser =asyncHandler( async(req,res)=>{
+   
+
+    
     //get user details from frontened
     //validatation-not empty
     //check if  user alrdy exist - email, username
@@ -17,11 +20,12 @@ const registerUser =asyncHandler( async(req,res)=>{
     //return res
 
     const {username,fullname,password,email}=req.body
-    console.log("email:", email);
+    //console.log("email:", email);
 
    /* if (fullname ===""){
         throw new ApiError(400,"full name is required")  it is good but for beg
     }*/
+  
    if(
     [fullname,email,username,password].some((field)=>(
         field?.trim()===""
@@ -38,16 +42,23 @@ const registerUser =asyncHandler( async(req,res)=>{
    }
 
    const avatarLocalPath=req.files?.avatar[0]?.path;
-   const coverImageLocalPath=req.files?.coverImage[0]?.path;
+   //console.log("avatarLocalPath:", avatarLocalPath);
+   //const coverImageLocalPath=req.files?.coverImage[0]?.path;
+   let coverImageLocalPath
+   if(req.files && Array.isArray(req.files.coverImage)&& req.files.coverImage.length>0){
+    coverImageLocalPath=req.files.coverImage[0].path
+   }
+   
    if(!avatarLocalPath){
-        throw new ApiError(400,"Avatar file is required")
+        throw new ApiError(400, "No avatar file found in req.files");
    }
 
    const avatar = await uploadOnCloundinary(avatarLocalPath);
+   //console.log("avatar upload result:", avatar);
    const coverImage = await uploadOnCloundinary(coverImageLocalPath);
 
     if(!avatar){
-        throw new ApiError(400,"Avatar file is required")
+        throw new ApiError(400, "Cloudinary upload failed for avatar");
    }
 
    //create user object
